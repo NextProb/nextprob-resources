@@ -1,0 +1,26 @@
+{
+  "meeting-notes": {
+    "version": 2
+  },
+  "daily-journal": {
+    "version": 2
+  },
+  "project-plan": {
+    "version": 1
+  },
+  "research-note": {
+    "version": 2
+  },
+  "weekly-review": {
+    "version": 1
+  },
+  "decision-log": {
+    "version": 1
+  },
+  "book-notes": {
+    "version": 1
+  },
+  "blank": {
+    "version": 2
+  }
+}

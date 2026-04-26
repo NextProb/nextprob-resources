@@ -1,0 +1,52 @@
+{
+  "claude-cli": {
+    "defaultModel": "sonnet",
+    "defaultEffort": "medium",
+    "models": [
+      { "id": "sonnet",  "label": "Sonnet 4.6" },
+      { "id": "opus",    "label": "Opus 4.6" },
+      { "id": "haiku",   "label": "Haiku 4.5" }
+    ],
+    "effort": ["low", "medium", "high"],
+    "permissionModes": [
+      { "id": "default",           "label": "Default",            "description": "Prompt for approval on each action" },
+      { "id": "acceptEdits",       "label": "Accept Edits",       "description": "Auto-approve file edits, prompt for others" },
+      { "id": "plan",              "label": "Plan",               "description": "Read-only mode, no writes allowed" },
+      { "id": "dontAsk",           "label": "Don't Ask",          "description": "Run without asking for approval" },
+      { "id": "auto",              "label": "Auto",               "description": "Auto-approve all tool calls" },
+      { "id": "bypassPermissions", "label": "Bypass Permissions", "description": "Bypass all permission checks" }
+    ]
+  },
+  "codex-cli": {
+    "defaultModel": "gpt-5.3-codex",
+    "models": [
+      { "id": "gpt-5.3-codex",      "label": "GPT-5.3 Codex",     "description": "Latest frontier agentic coding model" },
+      { "id": "gpt-5.4",            "label": "GPT-5.4",           "description": "Latest frontier agentic coding model" },
+      { "id": "gpt-5.2-codex",      "label": "GPT-5.2 Codex",     "description": "Frontier agentic coding model" },
+      { "id": "gpt-5.2",            "label": "GPT-5.2",           "description": "Optimized for professional work and long-running agents" },
+      { "id": "gpt-5.1-codex-max",  "label": "GPT-5.1 Codex Max", "description": "Codex-optimized model for deep and fast reasoning" },
+      { "id": "gpt-5.1-codex-mini", "label": "GPT-5.1 Codex Mini","description": "Optimized for codex. Cheaper, faster, but less capable" }
+    ],
+    "permissionModes": [
+      { "id": "read-only",          "label": "Read Only",     "description": "Only read files, no writes" },
+      { "id": "workspace-write",    "label": "Workspace Write","description": "Write within workspace only" },
+      { "id": "danger-full-access", "label": "Full Access",   "description": "Full system access (dangerous)" }
+    ]
+  },
+  "gemini-cli": {
+    "defaultModel": "gemini-3-flash-preview",
+    "models": [
+      { "id": "gemini-3.1-pro-preview", "label": "Gemini 3.1 Pro" },
+      { "id": "gemini-3-flash-preview", "label": "Gemini 3 Flash" },
+      { "id": "gemini-2.5-pro",        "label": "Gemini 2.5 Pro" },
+      { "id": "gemini-2.5-flash",      "label": "Gemini 2.5 Flash" },
+      { "id": "gemini-2.5-flash-lite", "label": "Gemini 2.5 Flash Lite" }
+    ],
+    "permissionModes": [
+      { "id": "default",   "label": "Default",   "description": "Prompt for approval on each action" },
+      { "id": "auto_edit", "label": "Auto Edit", "description": "Auto-approve edit tools" },
+      { "id": "plan",      "label": "Plan",      "description": "Read-only mode" },
+      { "id": "yolo",      "label": "YOLO",      "description": "Auto-approve all tools" }
+    ]
+  }
+}
