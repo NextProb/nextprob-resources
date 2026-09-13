@@ -96,42 +96,67 @@ These globals are available to the item's HTML at runtime. Use **exactly** these
 
 #### `noteDB` — Key-Value Store
 
+All `noteDB` methods are asynchronous and must be awaited.
+
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `noteDB.get(key)` | `any \| null` | Get a value by key. Returns `null` if not found. |
-| `noteDB.set(key, value)` | `void` | Set a key to any JSON-serializable value. |
-| `noteDB.delete(key)` | `void` | Delete a key. |
-| `noteDB.list()` | `string[]` | List all keys. |
+| `await noteDB.get(key)` | `Promise<any \| null>` | Get a value by key. Resolves to `null` if not found. |
+| `await noteDB.set(key, value)` | `Promise<void>` | Set a key to any JSON-serializable value. |
+| `await noteDB.delete(key)` | `Promise<void>` | Delete a key. |
+| `await noteDB.list()` | `Promise<string[]>` | List all keys. |
+
+The API is exposed by the host app's Electron preload before page JavaScript runs, so `noteDB` is available immediately — do not poll or wait for it. When an item may also run in a normal browser, guard with `typeof noteDB !== 'undefined'`.
+
+Always handle reads asynchronously:
+
+```js
+async function initialize() {
+  const saved = typeof noteDB !== 'undefined'
+    ? await noteDB.get('view-state')
+    : null;
+  render(saved ?? defaultState);
+}
+
+initialize().catch(console.error);
+```
+
+Calling `noteDB.get()` without `await` returns a Promise rather than the stored value.
 
 #### `noteFiles` — File Storage
 
+All `noteFiles` methods are asynchronous and must be awaited.
+
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `noteFiles.load(name)` | `ArrayBuffer \| null` | Load a file's contents as raw bytes. Returns `null` if not found. For text files, decode with `new TextDecoder().decode(buf)`. |
-| `noteFiles.save(name, data)` | `void` | Save a file. `data` can be a `string`, `ArrayBuffer`, or `Uint8Array`. |
-| `noteFiles.delete(name)` | `void` | Delete a file. |
-| `noteFiles.list()` | `string[]` | List all filenames in storage. |
-| `noteFiles.import(options?)` | `string \| null` | Open a native file picker and copy the selected file into storage. Pass `{ filters: [{ name: 'CSV', extensions: ['csv'] }] }` to restrict file types, or call with no arguments to allow any file. Returns the filename on success, or `null` if canceled. |
+| `await noteFiles.load(name)` | `Promise<ArrayBuffer \| null>` | Load a file's contents as raw bytes. Resolves to `null` if not found. For text files, decode with `new TextDecoder().decode(buf)`. |
+| `await noteFiles.save(name, data)` | `Promise<void>` | Save a file. `data` can be a `string`, `ArrayBuffer`, or `Uint8Array`. |
+| `await noteFiles.delete(name)` | `Promise<void>` | Delete a file. |
+| `await noteFiles.list()` | `Promise<string[]>` | List all filenames in storage. |
+| `await noteFiles.import(options?)` | `Promise<string \| null>` | Open a native file picker and copy the selected file into storage. Pass `{ filters: [{ name: 'CSV', extensions: ['csv'] }] }` to restrict file types, or call with no arguments to allow any file. Resolves to the filename on success, or `null` if canceled. |
 
 #### `noteSQL` — SQLite Database
 
+All `noteSQL` methods are asynchronous and must be awaited.
+
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `noteSQL.exec(sql, params?)` | `{ changes }` | Execute a write statement (INSERT, UPDATE, DELETE, CREATE TABLE, etc.). `params` is an optional array of bind values. Returns the number of rows changed. |
-| `noteSQL.query(sql, params?)` | `object[]` | Execute a read query (SELECT). Returns an array of row objects. |
+| `await noteSQL.exec(sql, params?)` | `Promise<{ changes }>` | Execute a write statement (INSERT, UPDATE, DELETE, CREATE TABLE, etc.). `params` is an optional array of bind values. Resolves to the number of rows changed. |
+| `await noteSQL.query(sql, params?)` | `Promise<object[]>` | Execute a read query (SELECT). Resolves to an array of row objects. |
 
 #### `noteScripts` — Script Execution
 
+All `noteScripts` methods are asynchronous and must be awaited.
+
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `noteScripts.run(name, args?)` | `{ stdout, stderr, exitCode }` | Run an approved script. `args` is an optional string array. Returns `{ error: 'not_approved' }` if the user hasn't approved the script yet. |
-| `noteScripts.stopByName(name)` | `void` | Stop a running script. |
+| `await noteScripts.run(name, args?)` | `Promise<{ stdout, stderr, exitCode }>` | Run an approved script. `args` is an optional string array. Resolves to `{ error: 'not_approved' }` if the user hasn't approved the script yet. |
+| `await noteScripts.stopByName(name)` | `Promise<void>` | Stop a running script. |
 
 #### `noteLog` — Frontend Logging
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `noteLog.write(message)` | `void` | Write a timestamped log entry to `scripts/logs/frontend.log`. Max 10,000 characters per message. |
+| `await noteLog.write(message)` | `Promise<void>` | Write a timestamped log entry to `scripts/logs/frontend.log`. Max 10,000 characters per message. |
 
 #### `noteAPI` — Item Identity
 
@@ -178,7 +203,32 @@ with open(log_path, 'a') as f:
 
 ### Auto-Persisted Form State
 
-Interactive elements — `<input>` (except password/hidden), `<textarea>`, `<select>`, and `[contenteditable]` — are automatically saved to the item's KV store (under the `__autosave` key) and restored on reload. No extra code is needed. To opt an element out, add the `data-no-persist` attribute. Because dynamic content (e.g., text typed into a textarea) exists only at runtime, it won't appear in the HTML file — read the `__autosave` key in `kv.json` to see current form values.
+The host app automatically persists these controls under the reserved `__autosave` KV key:
+
+- `<input>`, except `password` and `hidden`
+- `<textarea>`
+- `<select>`
+- Elements with `[contenteditable]`
+
+Add `data-no-persist` to opt out. No extra code is needed.
+
+Autosave runs in the preload layer:
+
+1. After `DOMContentLoaded`, the app asynchronously reads `__autosave`.
+2. It restores matching controls, choosing each control's key as its `id`, else its `name`, else a positional DOM path.
+3. It listens for `input` and `change` events.
+4. It saves the form state after a 500 ms debounce.
+
+Important behavior:
+
+- Give persisted controls stable, unique `id` attributes. The key is chosen by priority (`id` → `name` → DOM position) and looked up directly — there is no per-control fallback, so renaming an `id`/`name` between save and restore means that control will not be restored.
+- Controls must exist in the DOM when restoration runs (at `DOMContentLoaded`).
+- Programmatic value changes do not automatically emit `input` or `change`.
+- Restoration sets the control value but does not dispatch events or call application handlers.
+- Do not use `__autosave` directly for button state, map state, selected panels, or other state that requires application behavior. Store that state under an explicit `noteDB` key and restore it with `await`.
+- Do not duplicate ordinary form values into a custom key unless their restoration must trigger additional application behavior.
+
+Because dynamic content (e.g., text typed into a textarea) exists only at runtime, it won't appear in the HTML file — read the `__autosave` key in `kv.json` to see current form values.
 
 ### Per-Item Memory
 
