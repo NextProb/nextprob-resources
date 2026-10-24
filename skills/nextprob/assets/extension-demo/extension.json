@@ -1,0 +1,19 @@
+{
+  "id": "command-runner",
+  "name": "Workspace command runner",
+  "description": "Run an existing tool periodically or when requested. Configure command and args before enabling.",
+  "service": { "command": "node", "args": ["service.cjs"] },
+  "hooks": [
+    { "event": "note.opened", "command": "node", "args": ["log-event.cjs"] }
+  ],
+  "commands": [
+    { "id": "run-now", "title": "Run now", "command": "node", "args": ["request.cjs"] }
+  ],
+  "settings": {
+    "command": "",
+    "args": [],
+    "intervalSeconds": 30,
+    "runOnChange": false,
+    "refreshPaths": []
+  }
+}

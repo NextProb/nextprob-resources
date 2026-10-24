@@ -48,6 +48,31 @@
               "description": "Apply the current official support-file and folder exclusions to all tree sections. Project-specific exclusions remain active when false."
             }
           }
+        },
+        "zones": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Order and hide built-in or extension contributions in each UI zone. Unlisted contributions follow in their default order. Hidden takes precedence. Unknown IDs are retained for extensions installed later.",
+          "properties": {
+            "rightPanel": {
+              "$ref": "#/$defs/zoneLayout"
+            },
+            "sidebarFooter": {
+              "$ref": "#/$defs/zoneLayout"
+            },
+            "bottomBar": {
+              "$ref": "#/$defs/zoneLayout"
+            },
+            "sidebar": {
+              "$ref": "#/$defs/zoneLayout"
+            },
+            "noteMenu": {
+              "$ref": "#/$defs/zoneLayout"
+            },
+            "mainTab": {
+              "$ref": "#/$defs/zoneLayout"
+            }
+          }
         }
       }
     },
@@ -341,6 +366,30 @@
           "required": [
             "type"
           ]
+        }
+      }
+    },
+    "zoneLayout": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "order": {
+          "type": "array",
+          "maxItems": 500,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,199}$"
+          }
+        },
+        "hidden": {
+          "type": "array",
+          "maxItems": 500,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,199}$"
+          }
         }
       }
     }

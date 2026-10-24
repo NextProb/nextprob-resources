@@ -4,7 +4,9 @@ This repository distributes model lists, presets, workspace instructions, templa
 
 ## Official skills
 
-`skills/manifest.json` lists official skill versions, minimum compatible app versions, and supported project-config versions. `skills/nextprob/` is the portable Agent Skills package for NextProb project configuration. Its entry point is `SKILL.md`; detailed documentation, the default config, and its schema are included as relative resources.
+`skills/manifest.json` lists official skill versions, minimum compatible app versions, and supported project-config versions. `skills/nextprob/` is the portable Agent Skills package for NextProb project settings and workspace extensions. Its entry point is `SKILL.md`; detailed documentation, starter assets, the default config, and its schema are included as relative resources.
+
+Extension guidance lives in `skills/nextprob/references/extensions.md`, with a reusable tool-wrapper plugin in `skills/nextprob/assets/extension-demo/`. Agents copy the example into user-owned workspace folders before customizing it. Extension support requires NextProb 0.4.0 or later; the skill retains its existing settings compatibility for older apps. Update this maintained package first, then refresh the app's bundled snapshot with the command below.
 
 NextProb installs the package automatically into a project's `.agents/skills/nextprob/` and `.claude/skills/nextprob/`. Codex discovers the first location, Claude Code discovers the second, and OpenCode recognizes both. No manual skill installation is required. The app preserves user-owned folders and edits; installing guidance does not create or change the user's `nextprob.config.json`.
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "revision": 8,
+  "revision": 10,
   "minAppVersion": "0.3.5",
   "definitions": [
     {
@@ -63,10 +63,27 @@
                 "hideWhenEmpty": true
               },
               {
+                "id": "templates",
+                "title": "Templates",
+                "view": "list",
+                "collection": "templates",
+                "hideWhenEmpty": true
+              },
+              {
+                "id": "published",
+                "title": "Published",
+                "view": "list",
+                "collection": "published",
+                "hideWhenEmpty": true
+              },
+              {
                 "id": "files",
                 "title": "Probs",
                 "view": "tree",
-                "source": "items"
+                "source": "items",
+                "hiddenFolders": [
+                  "_templates"
+                ]
               }
             ],
             "itemTitle": [

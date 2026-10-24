@@ -1,5 +1,12 @@
 {
   "version": 1,
+  "metadataFields": {
+    "published": {
+      "source": "noteKv",
+      "key": "__shareId",
+      "read": "truthy"
+    }
+  },
   "collections": {
     "favorites": {
       "source": "items",
@@ -12,6 +19,25 @@
         ]
       },
       "sort": "favoriteOrder"
+    },
+    "templates": {
+      "source": "notes",
+      "where": {
+        "in": [
+          "_templates",
+          {
+            "var": "ancestorPaths"
+          }
+        ]
+      },
+      "sort": "title"
+    },
+    "published": {
+      "source": "notes",
+      "where": {
+        "var": "metadata.published"
+      },
+      "sort": "title"
     }
   },
   "surfaces": {
@@ -26,10 +52,27 @@
           "hideWhenEmpty": true
         },
         {
+          "id": "templates",
+          "title": "Templates",
+          "view": "list",
+          "collection": "templates",
+          "hideWhenEmpty": true
+        },
+        {
+          "id": "published",
+          "title": "Published",
+          "view": "list",
+          "collection": "published",
+          "hideWhenEmpty": true
+        },
+        {
           "id": "files",
           "title": "Probs",
           "view": "tree",
-          "source": "items"
+          "source": "items",
+          "hiddenFolders": [
+            "_templates"
+          ]
         }
       ]
     }
